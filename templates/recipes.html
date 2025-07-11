@@ -1,57 +1,61 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Recipe Matcher</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-<div class="container py-5">
-    <h2 class="mb-4">Find Recipes Based on Your Ingredients</h2>
-    <form method="POST" class="card p-4 shadow-sm mb-4">
-        <div class="mb-3">
-            <label class="form-label">Ingredients (comma-separated)</label>
-            <input type="text" name="ingredients" class="form-control" placeholder="e.g. eggs, milk, sugar" required>
-        </div>
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <label class="form-label">Min Price (₹)</label>
-                <input type="number" step="0.01" name="min_price" class="form-control">
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label">Max Price (₹)</label>
-                <input type="number" step="0.01" name="max_price" class="form-control">
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label">Min Protein (g)</label>
-                <input type="number" step="0.01" name="min_protein" class="form-control">
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label">Max Protein (g)</label>
-                <input type="number" step="0.01" name="max_protein" class="form-control">
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label">Min Calories</label>
-                <input type="number" step="0.01" name="min_calories" class="form-control">
-            </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label">Max Calories</label>
-                <input type="number" step="0.01" name="max_calories" class="form-control">
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Search</button>
-    </form>
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4">Suggested Recipes</h2>
+  <form method="POST" class="mb-5 card p-4 shadow-sm">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <input type="text" name="ingredients" class="form-control" placeholder="e.g. eggs, milk, raisins" required>
+      </div>
+      <div class="col-md-2">
+        <input type="number" step="0.01" name="min_price" class="form-control" placeholder="Min Price">
+      </div>
+      <div class="col-md-2">
+        <input type="number" step="0.01" name="max_price" class="form-control" placeholder="Max Price">
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="min_calories" class="form-control" placeholder="Min Calories">
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="max_calories" class="form-control" placeholder="Max Calories">
+      </div>
+      <div class="col-md-6">
+        <input type="number" name="min_protein" class="form-control" placeholder="Min Protein">
+      </div>
+      <div class="col-md-6">
+        <input type="number" name="max_protein" class="form-control" placeholder="Max Protein">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Find Recipes</button>
+  </form>
 
-    {% if matched %}
-    <h3>Matching Recipes</h3>
-    {% for recipe in matched %}
-        <div class="card mb-3 p-3">
-            <h5>{{ recipe.title }}</h5>
-            <p><strong>Available:</strong> {{ recipe.available | map(attribute='name') | join(', ') }}</p>
-            <p><strong>Unavailable:</strong> {{ recipe.unavailable | join(', ') }}</p>
-            <p><strong>Calories:</strong> {{ recipe.calories }} | <strong>Protein:</strong> {{ recipe.protein }}g | <strong>Cost:</strong> ₹{{ recipe.cost }}</p>
+  {% if matched %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for recipe in matched %}
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ recipe.title }}</h5>
+            <p><strong>Available Ingredients:</strong> 
+              {% for item in recipe.available %}
+                <span class="badge bg-success">{{ item.name }}</span>
+              {% endfor %}
+            </p>
+            <p><strong>Unavailable Ingredients:</strong>
+              {% for missing in recipe.unavailable %}
+                <span class="badge bg-danger">{{ missing }}</span>
+              {% endfor %}
+            </p>
+            <p><strong>Total Cost:</strong> ₹{{ recipe.cost }}</p>
+            <p><strong>Calories:</strong> {{ recipe.calories }} kcal</p>
+            <p><strong>Protein:</strong> {{ recipe.protein }} g</p>
+          </div>
         </div>
-    {% endfor %}
-    {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  {% elif request.method == 'POST' %}
+    <p class="text-muted">No recipes found with those ingredients.</p>
+  {% endif %}
 </div>
-</body>
-</html>
+{% endblock %}

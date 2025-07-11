@@ -2,24 +2,27 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
-import sqlite3
-import ast
 import json
+
+# Setup
 base_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(base_dir, 'RAW_recipes.json')
 
 with open(file_path, 'r') as f:
     RAW_recipes = json.load(f)
+
 app = Flask(__name__)
 app.secret_key = 'secretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///grocery.db'
 db = SQLAlchemy(app)
 
+# Meal-Item relationship
 meal_items = db.Table('meal_items',
     db.Column('meal_id', db.Integer, db.ForeignKey('meal.id')),
     db.Column('item_id', db.Integer, db.ForeignKey('item.id'))
 )
 
+# Models
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
@@ -53,13 +56,14 @@ class Meal(db.Model):
     def total_protein(self):
         return sum(item.protein for item in self.items)
 
+# Create DB and default admin
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(username='admin').first():
         db.session.add(User(username='admin', password=generate_password_hash('admin'), is_admin=True))
         db.session.commit()
 
-
+# Routes
 @app.route('/')
 def index():
     meals = Meal.query.all()
@@ -129,6 +133,7 @@ def add_meal():
 @app.route('/recipes', methods=['GET', 'POST'])
 def recipe_matcher():
     matched = []
+
     def parse_float(val, default):
         try:
             return float(val)
@@ -168,41 +173,25 @@ def recipe_matcher():
 
             unavailable = req - {i.name.lower() for i in available_items}
 
-            if not (min_price <= total_cost <= max_price and min_cal <= total_cal <= max_cal and min_prot <= total_prot <= max_prot):
-                continue
+            if min_price <= total_cost <= max_price and min_cal <= total_cal <= max_cal and min_prot <= total_prot <= max_prot:
+                matched.append({
+                    'title': f"Recipe #{recipe['id']}",
+                    'instructions': '',
+                    'available': available_items,
+                    'unavailable': unavailable,
+                    'cost': round(total_cost, 2),
+                    'calories': round(total_cal, 2),
+                    'protein': round(total_prot, 2),
+                    'match_count': len(matched_ing)
+                })
 
-            matched.append({
-                'title': f"Recipe #{recipe['id']}",
-                'instructions': '',
-                'available': available_items,
-                'unavailable': unavailable,
-                'cost': round(total_cost, 2),
-                'calories': round(total_cal, 2),
-                'protein': round(total_prot, 2)
-            })
+        # Sort by number of matching ingredients (descending), then take top 10
+        matched = sorted(matched, key=lambda r: r['match_count'], reverse=True)[:10]
 
     return render_template('recipes.html', matched=matched)
 
 
 
-
-recipes_data = [
-    {
-        'title': 'French Toast',
-        'ingredients': ['bread', 'egg', 'milk', 'butter'],
-        'instructions': 'Mix egg and milk, dip bread, and fry in butter.'
-    },
-    {
-        'title': 'Egg Fried Rice',
-        'ingredients': ['rice', 'egg', 'onion', 'soy sauce'],
-        'instructions': 'Fry egg and onion, add cooked rice and soy sauce.'
-    },
-    {
-        'title': 'Tomato Omelette',
-        'ingredients': ['egg', 'tomato', 'onion', 'salt'],
-        'instructions': 'Mix ingredients and cook on pan.'
-    }
-]
 
 if __name__ == '__main__':
     app.run(debug=True)

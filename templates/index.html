@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4">Meals</h2>
+
+  {% if meals %}
+  <div class="row">
+    {% for meal in meals %}
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        <img src="{{ meal.image_url }}" class="card-img-top" onerror="this.onerror=null;this.src='/static/default.png';" style="object-fit: cover; height: 200px;">
+        <div class="card-body">
+          <h5 class="card-title">{{ meal.name }}</h5>
+          <p class="card-text">
+            ₹{{ "%.2f"|format(meal.total_cost) }}<br>
+            Calories: {{ "%.1f"|format(meal.total_calories) }}<br>
+            Protein: {{ "%.1f"|format(meal.total_protein) }}g
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">No meals added yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

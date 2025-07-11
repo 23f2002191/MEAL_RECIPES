@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container py-5">
+  <h2>Add Item</h2>
+  <form method="POST" class="card p-4">
+    <div class="mb-3">
+      <label class="form-label">Name</label>
+      <input type="text" name="name" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Cost</label>
+      <input type="number" name="cost" step="0.01" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Image URL</label>
+      <input type="text" name="image_url" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Calories</label>
+      <input type="number" name="calories" step="0.01" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Protein</label>
+      <input type="number" name="protein" step="0.01" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Discount (%)</label>
+      <input type="number" name="discount" step="0.01" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-success">Add Item</button>
+  </form>
+</div>
+{% endblock %}

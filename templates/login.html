@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container py-5" style="max-width: 500px;">
+  <h2 class="mb-4">Login</h2>
+  <form method="POST" class="card p-4 shadow-sm">
+    <div class="mb-3">
+      <label class="form-label">Username</label>
+      <input type="text" name="username" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Password</label>
+      <input type="password" name="password" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Login</button>
+  </form>
+  <div class="text-center mt-3">
+    <a href="/signup">Don't have an account? Sign up</a>
+  </div>
+</div>
+{% endblock %}

@@ -65,8 +65,45 @@ with app.app_context():
 
 # Routes
 @app.route('/')
-def index():
-    meals = Meal.query.all()
+def home():
+    meals = []
+
+    # Load all items once, indexed by lowercase name
+    all_items = {item.name.lower(): item for item in Item.query.all()}
+
+    for recipe in RAW_recipes:
+        try:
+            req = set(i.strip().lower() for i in recipe['ingredients'])
+        except Exception as e:
+            print(f"Skipping recipe due to parse error: {e}")
+            continue
+
+        available_items = []
+        total_cost = total_cal = total_prot = 0
+
+        for r in req:
+            # Match if ingredient string is contained in item name (case-insensitive)
+            item = next((i for name, i in all_items.items() if r in name), None)
+            if item:
+                available_items.append(item)
+                total_cost += item.cost * (1 - (item.discount or 0) / 100)
+                total_cal += item.calories or 0
+                total_prot += item.protein or 0
+
+        # ✅ Only include if all ingredients are available
+        if len(available_items) == len(req):
+            meals.append({
+                'title': f"Recipe #{recipe['id']}",
+                'ingredients': available_items,
+                'cost': round(total_cost, 2),
+                'calories': total_cal,
+                'protein': total_prot
+            })
+
+        # ✅ Stop once we have 10 full matches
+        if len(meals) >= 10:
+            break
+
     return render_template('index.html', meals=meals)
 
 @app.route('/signup', methods=['GET', 'POST'])

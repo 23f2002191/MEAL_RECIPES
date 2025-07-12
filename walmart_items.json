@@ -1,0 +1,243 @@
+[
+  {
+    "name": "eggs",
+    "cost": 2.49,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 70,
+    "protein": 6,
+    "discount": 1
+  },
+  {
+    "name": "milk",
+    "cost": 1.99,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 103,
+    "protein": 8,
+    "discount": 1
+  },
+  {
+    "name": "butter",
+    "cost": 3.29,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 102,
+    "protein": 0,
+    "discount": 1
+  },
+  {
+    "name": "olive oil",
+    "cost": 5.49,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 119,
+    "protein": 0,
+    "discount": 1
+  },
+  {
+    "name": "cheese",
+    "cost": 3.99,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 113,
+    "protein": 7,
+    "discount": 1
+  },
+  {
+    "name": "chicken breast",
+    "cost": 6.99,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 165,
+    "protein": 31,
+    "discount": 1
+  },
+  {
+    "name": "carrots",
+    "cost": 1.49,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 25,
+    "protein": 1,
+    "discount": 1
+  },
+  {
+    "name": "raisins",
+    "cost": 2.79,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 129,
+    "protein": 1,
+    "discount": 1
+  },
+  {
+    "name": "bacon",
+    "cost": 4.99,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 42,
+    "protein": 3,
+    "discount": 1
+  },
+  {
+    "name": "soy sauce",
+    "cost": 2.59,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 10,
+    "protein": 2,
+    "discount": 1
+  },
+  {
+    "name": "salt",
+    "cost": 0.89,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 0,
+    "protein": 0,
+    "discount": 1
+  },
+  {
+    "name": "sugar",
+    "cost": 1.49,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 49,
+    "protein": 0,
+    "discount": 1
+  },
+  {
+    "name": "flour",
+    "cost": 2.19,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 100,
+    "protein": 3,
+    "discount": 1
+  },
+  {
+    "name": "water",
+    "cost": 0.00,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 0,
+    "protein": 0,
+    "discount": 1
+  },
+  {
+    "name": "onions",
+    "cost": 1.29,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 44,
+    "protein": 1,
+    "discount": 1
+  },
+  {
+    "name": "garlic",
+    "cost": 0.99,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 5,
+    "protein": 0,
+    "discount": 1
+  },
+  {
+    "name": "baking powder",
+    "cost": 1.59,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 2,
+    "protein": 0,
+    "discount": 1
+  },
+  {
+    "name": "pepper",
+    "cost": 2.29,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 16,
+    "protein": 1,
+    "discount": 1
+  },
+  {
+    "name": "rice",
+    "cost": 2.79,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 206,
+    "protein": 4,
+    "discount": 1
+  },
+  {
+    "name": "vanilla extract",
+    "cost": 3.89,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 12,
+    "protein": 0,
+    "discount": 1
+  },
+
+  {
+    "name": "corn starch",
+    "cost": 1.89,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 30,
+    "protein": 0,
+    "discount": 0
+  },
+  {
+    "name": "chocolate",
+    "cost": 2.99,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 150,
+    "protein": 2,
+    "discount": 0
+  },
+  {
+    "name": "chili powder",
+    "cost": 1.39,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 23,
+    "protein": 1,
+    "discount": 0
+  },
+  {
+    "name": "canned tomatoes",
+    "cost": 1.09,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 32,
+    "protein": 1,
+    "discount": 0
+  },
+  {
+    "name": "vinegar",
+    "cost": 1.29,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 3,
+    "protein": 0,
+    "discount": 0
+  },
+  {
+    "name": "shrimp",
+    "cost": 7.99,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 99,
+    "protein": 24,
+    "discount": 0
+  },
+  {
+    "name": "thyme",
+    "cost": 1.59,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 3,
+    "protein": 0,
+    "discount": 0
+  },
+  {
+    "name": "celery",
+    "cost": 1.39,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 10,
+    "protein": 0,
+    "discount": 0
+  },
+  {
+    "name": "cream cheese",
+    "cost": 2.79,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 99,
+    "protein": 2,
+    "discount": 0
+  },
+  {
+    "name": "chicken thighs",
+    "cost": 5.49,
+    "image_url": "https://via.placeholder.com/150",
+    "calories": 209,
+    "protein": 26,
+    "discount": 0
+  }
+]

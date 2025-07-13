@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import json
+import random
+from rapidfuzz import process, fuzz
 
 # Setup
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -66,10 +68,11 @@ with app.app_context():
 # Routes
 @app.route('/')
 def home():
-    meals = []
+    import random
 
-    # Load all items once, indexed by lowercase name
+    meals = []
     all_items = {item.name.lower(): item for item in Item.query.all()}
+    fully_matched_recipes = []
 
     for recipe in RAW_recipes:
         try:
@@ -80,19 +83,21 @@ def home():
 
         available_items = []
         total_cost = total_cal = total_prot = 0
+        has_discount = False
 
         for r in req:
-            # Match if ingredient string is contained in item name (case-insensitive)
             item = next((i for name, i in all_items.items() if r in name), None)
             if item:
                 available_items.append(item)
+                if item.discount and item.discount > 0:
+                    has_discount = True
                 total_cost += item.cost * (1 - (item.discount or 0) / 100)
                 total_cal += item.calories or 0
                 total_prot += item.protein or 0
 
-        # ✅ Only include if all ingredients are available
-        if len(available_items) == len(req):
-            meals.append({
+        # ✅ Only include if all ingredients are available AND at least one has a discount
+        if len(available_items) == len(req) and has_discount:
+            fully_matched_recipes.append({
                 'title': f"Recipe #{recipe['id']}",
                 'ingredients': available_items,
                 'cost': round(total_cost, 2),
@@ -100,9 +105,8 @@ def home():
                 'protein': total_prot
             })
 
-        # ✅ Stop once we have 10 full matches
-        if len(meals) >= 10:
-            break
+    # ✅ Randomly select up to 12
+    meals = random.sample(fully_matched_recipes, min(12, len(fully_matched_recipes)))
 
     return render_template('index.html', meals=meals)
 
@@ -126,13 +130,13 @@ def login():
         if user and check_password_hash(user.password, password):
             session['user'] = user.username
             session['is_admin'] = user.is_admin
-            return redirect(url_for('index'))
+            return redirect(url_for('home'))
     return render_template('login.html')
 
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 @app.route('/add-item', methods=['GET', 'POST'])
 def add_item():
@@ -178,8 +182,7 @@ def recipe_matcher():
             return default
 
     if request.method == 'POST':
-        user_ing = set(ing.strip().lower() for ing in request.form['ingredients'].split(','))
-
+        user_input = [ing.strip().lower() for ing in request.form['ingredients'].split(',') if ing.strip()]
         min_price = parse_float(request.form.get('min_price'), 0)
         max_price = parse_float(request.form.get('max_price'), float('inf'))
         min_cal = parse_float(request.form.get('min_calories'), 0)
@@ -187,28 +190,39 @@ def recipe_matcher():
         min_prot = parse_float(request.form.get('min_protein'), 0)
         max_prot = parse_float(request.form.get('max_protein'), float('inf'))
 
+        all_items = {item.name.lower(): item for item in Item.query.all()}
+        item_names = list(all_items.keys())
+
         for recipe in RAW_recipes:
             try:
-                req = set(i.strip().lower() for i in recipe['ingredients'])
+                recipe_ings = set(i.strip().lower() for i in recipe['ingredients'])
             except Exception as e:
                 print(f"Skipping recipe due to parse error: {e}")
                 continue
 
-            matched_ing = user_ing & req
-            if not matched_ing:
-                continue
+            # Fuzzy match: see how many user ingredients fuzzily match any in recipe_ings
+            fuzzy_matches = set()
+            for u_ing in user_input:
+                match = process.extractOne(u_ing, recipe_ings, scorer=fuzz.partial_ratio, score_cutoff=75)
+                if match:
+                    fuzzy_matches.add(match[0])
 
+            if not fuzzy_matches:
+                continue  # skip if no match at all
+
+            # Fetch item details from DB (fuzzy match again)
             available_items = []
             total_cost = total_cal = total_prot = 0
-            for r in req:
-                item = Item.query.filter(Item.name.ilike(f"%{r}%")).first()
-                if item:
+            for ing in recipe_ings:
+                db_match = process.extractOne(ing, item_names, scorer=fuzz.partial_ratio, score_cutoff=75)
+                if db_match:
+                    item = all_items[db_match[0]]
                     available_items.append(item)
                     total_cost += item.cost * (1 - (item.discount or 0) / 100)
                     total_cal += item.calories or 0
                     total_prot += item.protein or 0
 
-            unavailable = req - {i.name.lower() for i in available_items}
+            unavailable = recipe_ings - {i.name.lower() for i in available_items}
 
             if min_price <= total_cost <= max_price and min_cal <= total_cal <= max_cal and min_prot <= total_prot <= max_prot:
                 matched.append({
@@ -219,13 +233,18 @@ def recipe_matcher():
                     'cost': round(total_cost, 2),
                     'calories': round(total_cal, 2),
                     'protein': round(total_prot, 2),
-                    'match_count': len(matched_ing)
+                    'match_count': len(fuzzy_matches)
                 })
 
-        # Sort by number of matching ingredients (descending), then take top 10
-        matched = sorted(matched, key=lambda r: r['match_count'], reverse=True)[:10]
+        # Sort first by number of unavailable ingredients (ascending), then by match count (descending)
+        matched = sorted(
+            matched,
+            key=lambda r: (len(r['unavailable']), -r['match_count'])
+        )[:12]
+
 
     return render_template('recipes.html', matched=matched)
+
 
 
 

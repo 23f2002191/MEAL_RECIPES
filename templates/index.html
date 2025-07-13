@@ -1,20 +1,28 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div class="container py-5">
-    <h2 class="mb-4">Discounted Meals</h2>
+    <h2 class="mb-4 text-center">🍽️ Discounted Meals</h2>
 
     {% if meals %}
-    <div class="row">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for meal in meals %}
-            <div class="meal">
-                <h2>{{ meal.title }}</h2>
-                <p><strong>Ingredients:</strong> {{ meal.ingredients | map(attribute='name') | join(', ') }}</p>
-                <p><strong>Cost:</strong> ${{ meal.cost }}</p>
-                <p><strong>Calories:</strong> {{ meal.calories }}</p>
-                <p><strong>Protein:</strong> {{ meal.protein }}g</p>
+        <div class="col">
+            <div class="card h-100 border rounded shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ meal.title }}</h5>
+
+                    <p><strong>✅ Ingredients:</strong><br>
+                        {{ meal.ingredients | map(attribute='name') | join(', ') }}
+                    </p>
+
+                    <ul class="list-group list-group-flush mt-3">
+                        <li class="list-group-item"><strong>💰 Cost:</strong> ${{ meal.cost }}</li>
+                        <li class="list-group-item"><strong>🔥 Calories:</strong> {{ meal.calories }}</li>
+                        <li class="list-group-item"><strong>💪 Protein:</strong> {{ meal.protein }}g</li>
+                    </ul>
+                </div>
             </div>
-        {% else %}
-            <p>More Meals Coming Soon!</p>
+        </div>
         {% endfor %}
     </div>
     {% else %}

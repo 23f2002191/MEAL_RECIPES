@@ -140,36 +140,75 @@ def logout():
 
 @app.route('/add-item', methods=['GET', 'POST'])
 def add_item():
-    if not session.get('is_admin'):
-        return redirect(url_for('index'))
+    if 'user' not in session or not session.get('is_admin'):
+        return redirect(url_for('login'))
+
     if request.method == 'POST':
         name = request.form['name']
         cost = float(request.form['cost'])
-        image_url = request.form['image_url']
-        calories = float(request.form.get('calories', 0))
-        protein = float(request.form.get('protein', 0))
+        calories = float(request.form['calories'])
+        protein = float(request.form['protein'])
         discount = float(request.form.get('discount', 0))
-        item = Item(name=name, cost=cost, image_url=image_url, calories=calories, protein=protein, discount=discount)
-        db.session.add(item)
+
+        new_item = Item(name=name, cost=cost, calories=calories, protein=protein, discount=discount)
+        db.session.add(new_item)
         db.session.commit()
-        return redirect(url_for('index'))
-    return render_template('add_item.html')
+
+        flash('Item added successfully!', 'success')
+        return redirect(url_for('add_item'))
+
+    # ✅ Fetch existing items to display
+    all_items = Item.query.order_by(Item.name.asc()).all()
+    return render_template('add_item.html', items=all_items)
+
 
 @app.route('/add-meal', methods=['GET', 'POST'])
 def add_meal():
-    if not session.get('is_admin'):
-        return redirect(url_for('index'))
+    import json
+
     items = Item.query.all()
+    all_items = {item.name.lower(): item for item in items}
+
     if request.method == 'POST':
         name = request.form['name']
-        image_url = request.form['image_url']
-        selected_ids = request.form.getlist('items')
-        selected_items = Item.query.filter(Item.id.in_(selected_ids)).all()
-        meal = Meal(name=name, image_url=image_url, items=selected_items)
-        db.session.add(meal)
+        image_url = request.form.get('image_url', '')
+        selected_item_ids = request.form.getlist('items')
+        selected_items = Item.query.filter(Item.id.in_(selected_item_ids)).all()
+
+        new_meal = Meal(name=name, image_url=image_url, items=selected_items)
+        db.session.add(new_meal)
         db.session.commit()
-        return redirect(url_for('index'))
-    return render_template('add_meal.html', items=items)
+        return redirect('/add-meal')
+
+    with open('RAW_recipes.json') as f:
+        raw_recipes = json.load(f)
+
+    recipe_meals = []
+    for r in raw_recipes:
+        available = []
+        unavailable = []
+        for ing in r.get("ingredients", []):
+            match = next((item for item_name, item in all_items.items() if ing.lower() in item_name), None)
+            if match:
+                available.append(match)
+            else:
+                unavailable.append(ing)
+
+        recipe_meals.append({
+            'id': r['id'],
+            'name': f"Recipe {r['id']}",
+            'image_url': "https://via.placeholder.com/300",
+            'available': available,
+            'unavailable': unavailable
+        })
+
+    # Sort by number of unavailable ingredients (ascending)
+    recipe_meals.sort(key=lambda x: len(x['unavailable']))
+
+    # Limit to top 30 recipes
+    recipe_meals = recipe_meals[:30]
+
+    return render_template('add_meal.html', items=items, meals=recipe_meals)
 
 @app.route('/recipes', methods=['GET', 'POST'])
 def recipe_matcher():

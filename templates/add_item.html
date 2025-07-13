@@ -1,33 +1,75 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="container py-5">
-  <h2>Add Item</h2>
-  <form method="POST" class="card p-4">
-    <div class="mb-3">
-      <label class="form-label">Name</label>
-      <input type="text" name="name" class="form-control" required>
+<div class="container py-5" style="max-width: 800px;">
+  <div class="card shadow-sm border-0 p-4 mb-5">
+    <h2 class="mb-4 text-center">➕ Add New Item</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Name</label>
+          <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Cost ($)</label>
+          <input type="number" name="cost" step="0.01" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Calories</label>
+          <input type="number" name="calories" step="0.1" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Protein (g)</label>
+          <input type="number" name="protein" step="0.1" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Discount (%)</label>
+          <input type="number" name="discount" step="0.1" class="form-control">
+        </div>
+      </div>
+      <div class="mt-4 text-center">
+        <button type="submit" class="btn btn-primary px-4">Add Item</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card shadow-sm border-0 p-4">
+    <h4 class="mb-3">🧾 Currently Available Items</h4>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle text-center">
+        <thead class="table-dark">
+          <tr>
+            <th>Name</th>
+            <th>Cost ($)</th>
+            <th>Calories</th>
+            <th>Protein (g)</th>
+            <th>Discount (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ '%.2f' % item.cost }}</td>
+            <td>{{ item.calories }}</td>
+            <td>{{ item.protein }}</td>
+            <td>{{ item.discount or 0 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <div class="mb-3">
-      <label class="form-label">Cost</label>
-      <input type="number" name="cost" step="0.01" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Image URL</label>
-      <input type="text" name="image_url" class="form-control">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Calories</label>
-      <input type="number" name="calories" step="0.01" class="form-control">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Protein</label>
-      <input type="number" name="protein" step="0.01" class="form-control">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Discount (%)</label>
-      <input type="number" name="discount" step="0.01" class="form-control">
-    </div>
-    <button type="submit" class="btn btn-success">Add Item</button>
-  </form>
+  </div>
 </div>
 {% endblock %}

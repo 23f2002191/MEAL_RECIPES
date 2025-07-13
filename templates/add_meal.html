@@ -1,28 +1,76 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="container py-5">
-  <h2>Add Meal</h2>
-  <form method="POST" class="card p-4">
+<div class="container py-5" style="max-width: 800px;">
+  <h2 class="mb-4 text-center">Add New Meal</h2>
+  <form method="POST" class="card p-4 shadow-sm border-0 mb-5">
     <div class="mb-3">
-      <label class="form-label">Meal Name</label>
-      <input type="text" name="name" class="form-control" required>
+      <label class="form-label fw-bold">Meal Name</label>
+      <input type="text" name="name" class="form-control" placeholder="e.g., Protein Power Bowl" required>
     </div>
+
     <div class="mb-3">
-      <label class="form-label">Image URL</label>
-      <input type="text" name="image_url" class="form-control">
+      <label class="form-label fw-bold">Image URL</label>
+      <input type="text" name="image_url" class="form-control" placeholder="https://...">
     </div>
+
     <div class="mb-3">
-      <label class="form-label">Select Items</label>
-      {% for item in items %}
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="items" value="{{ item.id }}" id="item{{ item.id }}">
-          <label class="form-check-label" for="item{{ item.id }}">
-            {{ item.name }} - ₹{{ item.cost }} | {{ item.calories }} cal | {{ item.protein }}g protein
-          </label>
-        </div>
-      {% endfor %}
+      <label class="form-label fw-bold">Select Items</label>
+      <div class="border rounded p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+        {% for item in items %}
+          <div class="form-check d-flex align-items-start mb-2">
+            <input class="form-check-input mt-1 me-2" type="checkbox" name="items" value="{{ item.id }}" id="item{{ item.id }}">
+            <label class="form-check-label d-flex align-items-center w-100" for="item{{ item.id }}">
+              <div>
+                <strong>{{ item.name }}</strong><br>
+                ₹{{ item.cost }} | {{ item.calories }} cal | {{ item.protein }}g protein
+              </div>
+            </label>
+          </div>
+        {% endfor %}
+      </div>
     </div>
-    <button type="submit" class="btn btn-success">Add Meal</button>
+
+    <button type="submit" class="btn btn-success w-100 mt-3">Add Meal</button>
   </form>
+
+  <h3 class="mb-4 text-center">Meals from Recipe Book</h3>
+{% for meal in meals %}
+  <div class="card mb-4 shadow-sm border-0">
+    <div class="row g-0">
+      <div class="col-md-4 d-flex align-items-center justify-content-center bg-light p-3">
+        <img src="https://media.istockphoto.com/id/1457433817/photo/group-of-healthy-food-for-flexitarian-diet.jpg?s=2048x2048&w=is&k=20&c=rRlOrFqCQn8kBDwvZnN75XFxiD0CA6S2LkgVKQRYJ3k=" class="img-fluid rounded" alt="{{ meal.name }}" style="max-height: 160px; object-fit: contain;">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title fw-semibold">{{ meal.name }}</h5>
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-success d-flex align-items-center mb-2">
+                <i class="bi bi-check-circle-fill me-2"></i>Available Ingredients
+              </h6>
+              <ul class="list-unstyled mb-0">
+                {% for i in meal.available %}
+                  <li class="mb-1">{{ i.name }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-danger d-flex align-items-center mb-2">
+                <i class="bi bi-x-circle-fill me-2"></i>Unavailable Ingredients
+              </h6>
+              <ul class="list-unstyled mb-0">
+                {% for i in meal.unavailable %}
+                  <li class="mb-1">{{ i }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+
 </div>
 {% endblock %}

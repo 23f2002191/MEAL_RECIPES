@@ -5,7 +5,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 70,
     "protein": 6,
-    "discount": 1
+    "discount": 10
   },
   {
     "name": "milk",
@@ -13,7 +13,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 103,
     "protein": 8,
-    "discount": 1
+    "discount": 5
   },
   {
     "name": "butter",
@@ -21,7 +21,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 102,
     "protein": 0,
-    "discount": 1
+    "discount": 0
   },
   {
     "name": "olive oil",
@@ -29,7 +29,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 119,
     "protein": 0,
-    "discount": 1
+    "discount": 0
   },
   {
     "name": "cheese",
@@ -37,7 +37,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 113,
     "protein": 7,
-    "discount": 1
+    "discount": 15
   },
   {
     "name": "chicken breast",
@@ -45,7 +45,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 165,
     "protein": 31,
-    "discount": 1
+    "discount": 20
   },
   {
     "name": "carrots",
@@ -53,7 +53,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 25,
     "protein": 1,
-    "discount": 1
+    "discount": 0
   },
   {
     "name": "raisins",
@@ -61,7 +61,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 129,
     "protein": 1,
-    "discount": 1
+    "discount": 5
   },
   {
     "name": "bacon",
@@ -69,7 +69,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 42,
     "protein": 3,
-    "discount": 1
+    "discount": 10
   },
   {
     "name": "soy sauce",
@@ -77,7 +77,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 10,
     "protein": 2,
-    "discount": 1
+    "discount": 0
   },
   {
     "name": "salt",
@@ -85,7 +85,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 0,
     "protein": 0,
-    "discount": 1
+    "discount": 5
   },
   {
     "name": "sugar",
@@ -93,7 +93,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 49,
     "protein": 0,
-    "discount": 1
+    "discount": 10
   },
   {
     "name": "flour",
@@ -101,7 +101,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 100,
     "protein": 3,
-    "discount": 1
+    "discount": 0
   },
   {
     "name": "water",
@@ -109,7 +109,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 0,
     "protein": 0,
-    "discount": 1
+    "discount": 0
   },
   {
     "name": "onions",
@@ -117,7 +117,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 44,
     "protein": 1,
-    "discount": 1
+    "discount": 8
   },
   {
     "name": "garlic",
@@ -125,7 +125,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 5,
     "protein": 0,
-    "discount": 1
+    "discount": 5
   },
   {
     "name": "baking powder",
@@ -133,7 +133,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 2,
     "protein": 0,
-    "discount": 1
+    "discount": 0
   },
   {
     "name": "pepper",
@@ -141,7 +141,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 16,
     "protein": 1,
-    "discount": 1
+    "discount": 5
   },
   {
     "name": "rice",
@@ -149,7 +149,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 206,
     "protein": 4,
-    "discount": 1
+    "discount": 20
   },
   {
     "name": "vanilla extract",
@@ -157,9 +157,8 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 12,
     "protein": 0,
-    "discount": 1
+    "discount": 10
   },
-
   {
     "name": "corn starch",
     "cost": 1.89,
@@ -174,7 +173,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 150,
     "protein": 2,
-    "discount": 0
+    "discount": 10
   },
   {
     "name": "chili powder",
@@ -182,7 +181,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 23,
     "protein": 1,
-    "discount": 0
+    "discount": 5
   },
   {
     "name": "canned tomatoes",
@@ -206,7 +205,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 99,
     "protein": 24,
-    "discount": 0
+    "discount": 25
   },
   {
     "name": "thyme",
@@ -230,7 +229,7 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 99,
     "protein": 2,
-    "discount": 0
+    "discount": 15
   },
   {
     "name": "chicken thighs",
@@ -238,6 +237,6 @@
     "image_url": "https://via.placeholder.com/150",
     "calories": 209,
     "protein": 26,
-    "discount": 0
+    "discount": 10
   }
 ]

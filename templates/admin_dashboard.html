@@ -1,0 +1,78 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="text-center mb-5">Admin Dashboard</h2>
+
+  <div class="row g-4 justify-content-center">
+    <!-- Inventory -->
+    <div class="col-md-4">
+      <div class="card h-100 border-primary shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-primary"> Inventory</h5>
+          <p>Total Items: <strong>{{ total_items }}</strong></p>
+          <p>Discounted Items: <strong>{{ discounted_items }}</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discounts -->
+    <div class="col-md-4">
+      <div class="card h-100 border-success shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-success"> Discounts</h5>
+          <p>Average Discount: <strong>{{ avg_discount }}%</strong></p>
+          <p>Items with ≥10%: <strong>{{ discount_10_plus }}</strong></p>
+          <p>Items with ≥20%: <strong>{{ discount_20_plus }}</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Meals -->
+    <div class="col-md-4">
+      <div class="card h-100 border-warning shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-warning"> Meals</h5>
+          <p>Total Meals: <strong>{{ total_meals }}</strong></p>
+          <p>Discounted Meals (available): <strong>{{ fully_available_discounted_meals }}</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spacer -->
+  <div class="my-4"></div>
+
+  <div class="row g-4">
+    <!-- Meal Breakdown -->
+    <div class="col-md-6">
+      <div class="card border-info shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-info">🗓️ Meal Breakdown</h5>
+          <p> Fully Available & Discounted Meals: <strong>{{ fully_available_discounted_meals }}</strong></p>
+          <p> Recipes with 1 Ingredient Missing: <strong>{{ one_missing }}</strong></p>
+          <p> Recipes with 2+ Ingredients Missing: <strong>{{ many_missing }}</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Missing Ingredients -->
+    <div class="col-md-6">
+      <div class="card border-danger shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-danger">Top Missing Ingredients</h5>
+          <ul class="list-unstyled">
+            {% for name, count in most_missing %}
+              <li><strong>{{ name.title() }}</strong> <span class="text-muted">({{ count }} recipes)</span></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Last Updated -->
+  <div class="text-end text-muted small mt-4">
+    Last Price Update: {{ last_updated }}
+  </div>
+</div>
+{% endblock %}

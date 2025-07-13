@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container py-5">
-    <h2 class="mb-4 text-center">🔍 Recipe Matcher</h2>
+    <h2 class="mb-4 text-center"> Recipe Matcher</h2>
 
     <!-- Search Form Box -->
     <div class="p-4 border rounded shadow-sm mb-5 bg-light">
@@ -68,10 +68,13 @@
                     {% endif %}
 
                     <ul class="list-group list-group-flush mt-3">
-                        <li class="list-group-item"><strong>💰 Cost:</strong> ${{ meal.cost }}</li>
-                        <li class="list-group-item"><strong>🔥 Calories:</strong> {{ meal.calories }}</li>
-                        <li class="list-group-item"><strong>💪 Protein:</strong> {{ meal.protein }}g</li>
+                        <li class="list-group-item"><strong> Cost:</strong> ${{ meal.cost }}</li>
+                        <li class="list-group-item"><strong> Calories:</strong> {{ meal.calories }}</li>
+                        <li class="list-group-item"><strong> Protein:</strong> {{ meal.protein }}g</li>
                     </ul>
+                    <form method="POST" action="{{ url_for('add_to_cart', meal_id=meal['id']) }}">
+                        <button class="btn btn-outline-primary btn-sm mt-2">🛒 Add to Cart</button>
+                    </form>
                 </div>
             </div>
         </div>

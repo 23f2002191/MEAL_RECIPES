@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4 text-center"> Your Cart</h2>
+
+  {% if cart_items %}
+    {% for item in cart_items %}
+    <div class="card mb-3 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">{{ item.title }} (x{{ item.qty }})</h5>
+        <p><strong>Ingredients:</strong><br> {{ item.ingredients | map(attribute='name') | join(', ') }}</p>
+        <p class="mb-1"> <strong>Total Cost:</strong> ₹{{ item.cost }}</p>
+        <p class="mb-1"> <strong>Calories:</strong> {{ item.calories }}</p>
+        <p> <strong>Protein:</strong> {{ item.protein }}g</p>
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="alert alert-success text-center mt-4">
+  <h5 class="mb-3">
+     Total: ₹{{ total_cost }} |
+     {{ total_calories }} cal |
+     {{ total_protein }}g protein |
+     <span class="text-success">You Saved ₹{{ total_savings }}</span>
+  </h5>
+
+  <form method="POST" action="{{ url_for('checkout') }}">
+    <button type="submit" class="btn btn-primary btn-lg mt-2"> Checkout</button>
+  </form>
+</div>
+
+
+  {% else %}
+    <div class="alert alert-warning text-center">
+      <strong>Your cart is empty!</strong>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

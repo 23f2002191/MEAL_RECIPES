@@ -66,9 +66,22 @@ with app.app_context():
         db.session.commit()
 
 # Routes
+
 @app.route('/')
 def home():
     import random
+    from datetime import datetime
+    from flask import session
+
+    now = datetime.utcnow()
+
+    if 'last_update_time' not in session:
+        session['last_update_time'] = now.isoformat()
+
+    last_update_time = datetime.fromisoformat(session['last_update_time'])
+    seconds_ago = int((now - last_update_time).total_seconds())
+
+
 
     meals = []
     all_items = {item.name.lower(): item for item in Item.query.all()}
@@ -95,20 +108,27 @@ def home():
                 total_cal += item.calories or 0
                 total_prot += item.protein or 0
 
-        # ✅ Only include if all ingredients are available AND at least one has a discount
         if len(available_items) == len(req) and has_discount:
+            original_cost = sum(item.cost for item in available_items)
+            discounted_cost = sum(item.cost * (1 - (item.discount or 0) / 100) for item in available_items)
+            savings = original_cost - discounted_cost
+
             fully_matched_recipes.append({
+                'id': recipe['id'],
                 'title': f"Recipe #{recipe['id']}",
                 'ingredients': available_items,
-                'cost': round(total_cost, 2),
+                'cost': round(discounted_cost, 2),
+                'original_cost': round(original_cost, 2),
+                'savings': round(savings, 2),
                 'calories': total_cal,
                 'protein': total_prot
             })
 
-    # ✅ Randomly select up to 12
+
     meals = random.sample(fully_matched_recipes, min(12, len(fully_matched_recipes)))
 
-    return render_template('index.html', meals=meals)
+    return render_template('index.html', meals=meals, is_admin=session.get('is_admin'), updated_ago=seconds_ago, now=now)
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -221,7 +241,7 @@ def recipe_matcher():
             return default
 
     if request.method == 'POST':
-        user_input = [ing.strip().lower() for ing in request.form['ingredients'].split(',') if ing.strip()]
+        user_ing = set(i.strip().lower() for i in request.form['ingredients'].split(','))
         min_price = parse_float(request.form.get('min_price'), 0)
         max_price = parse_float(request.form.get('max_price'), float('inf'))
         min_cal = parse_float(request.form.get('min_calories'), 0)
@@ -230,61 +250,187 @@ def recipe_matcher():
         max_prot = parse_float(request.form.get('max_protein'), float('inf'))
 
         all_items = {item.name.lower(): item for item in Item.query.all()}
-        item_names = list(all_items.keys())
 
         for recipe in RAW_recipes:
-            try:
-                recipe_ings = set(i.strip().lower() for i in recipe['ingredients'])
-            except Exception as e:
-                print(f"Skipping recipe due to parse error: {e}")
+            ingredients = set(i.lower() for i in recipe.get("ingredients", []))
+            matched_ing = user_ing & ingredients
+            if not matched_ing:
                 continue
 
-            # Fuzzy match: see how many user ingredients fuzzily match any in recipe_ings
-            fuzzy_matches = set()
-            for u_ing in user_input:
-                match = process.extractOne(u_ing, recipe_ings, scorer=fuzz.partial_ratio, score_cutoff=75)
-                if match:
-                    fuzzy_matches.add(match[0])
-
-            if not fuzzy_matches:
-                continue  # skip if no match at all
-
-            # Fetch item details from DB (fuzzy match again)
-            available_items = []
+            available, unavailable = [], []
             total_cost = total_cal = total_prot = 0
-            for ing in recipe_ings:
-                db_match = process.extractOne(ing, item_names, scorer=fuzz.partial_ratio, score_cutoff=75)
-                if db_match:
-                    item = all_items[db_match[0]]
-                    available_items.append(item)
+
+            for ing in ingredients:
+                item = next((itm for name, itm in all_items.items() if ing in name), None)
+                if item:
+                    available.append(item)
                     total_cost += item.cost * (1 - (item.discount or 0) / 100)
                     total_cal += item.calories or 0
                     total_prot += item.protein or 0
-
-            unavailable = recipe_ings - {i.name.lower() for i in available_items}
+                else:
+                    unavailable.append(ing)
 
             if min_price <= total_cost <= max_price and min_cal <= total_cal <= max_cal and min_prot <= total_prot <= max_prot:
                 matched.append({
+                    'id': recipe['id'],  # needed for Add to Cart
                     'title': f"Recipe #{recipe['id']}",
-                    'instructions': '',
-                    'available': available_items,
+                    'available': available,
                     'unavailable': unavailable,
                     'cost': round(total_cost, 2),
                     'calories': round(total_cal, 2),
                     'protein': round(total_prot, 2),
-                    'match_count': len(fuzzy_matches)
+                    'match_count': len(matched_ing)
                 })
 
-        # Sort first by number of unavailable ingredients (ascending), then by match count (descending)
-        matched = sorted(
-            matched,
-            key=lambda r: (len(r['unavailable']), -r['match_count'])
-        )[:12]
-
+        matched = sorted(matched, key=lambda r: (len(r['unavailable']), -r['match_count']))[:12]
 
     return render_template('recipes.html', matched=matched)
 
 
+@app.route('/admin-dashboard')
+def admin_dashboard():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+
+    import json
+    from collections import Counter
+    from datetime import datetime
+
+    all_items = {item.name.lower(): item for item in Item.query.all()}
+    total_items = len(all_items)
+    discounted_items = [item for item in all_items.values() if item.discount > 0]
+    avg_discount = round(sum(i.discount for i in discounted_items) / total_items, 2) if total_items else 0
+
+    with open('RAW_recipes.json') as f:
+        recipes = json.load(f)
+
+    total_meals = len(recipes)
+    fully_available_discounted_meals = 0
+    one_missing = 0
+    many_missing = 0
+
+    missing_counter = Counter()
+
+    for recipe in recipes:
+        try:
+            ingredients = set(i.strip().lower() for i in recipe.get("ingredients", []))
+        except Exception:
+            continue
+
+        available_count = 0
+        has_discount = False
+
+        for ing in ingredients:
+            matched_item = next((item for name, item in all_items.items() if ing in name), None)
+            if matched_item:
+                available_count += 1
+                if matched_item.discount > 0:
+                    has_discount = True
+            else:
+                missing_counter[ing] += 1
+
+        missing_count = len(ingredients) - available_count
+
+        if missing_count == 0 and has_discount:
+            fully_available_discounted_meals += 1
+        elif missing_count == 1:
+            one_missing += 1
+        elif missing_count >= 2:
+            many_missing += 1
+
+    most_missing = missing_counter.most_common(5)
+    last_updated = session.get('last_update_time', datetime.utcnow().isoformat())
+
+    return render_template('admin_dashboard.html', **{
+        'total_items': total_items,
+        'discounted_items': len(discounted_items),
+        'avg_discount': avg_discount,
+        'discount_10_plus': len([i for i in discounted_items if i.discount >= 10]),
+        'discount_20_plus': len([i for i in discounted_items if i.discount >= 20]),
+        'total_meals': total_meals,
+        'fully_available_discounted_meals': fully_available_discounted_meals,
+        'one_missing': one_missing,
+        'many_missing': many_missing,
+        'most_missing': most_missing,
+        'last_updated': last_updated
+    })
+
+@app.route('/add-to-cart/<int:meal_id>', methods=['POST'])
+def add_to_cart(meal_id):
+    if 'cart' not in session:
+        session['cart'] = []
+
+    cart = session['cart']
+    
+    # Ensure it's a list of dicts and not a list of lists
+    for item in cart:
+        if isinstance(item, dict) and item.get('meal_id') == meal_id:
+            item['qty'] += 1
+            break
+    else:
+        cart.append({'meal_id': meal_id, 'qty': 1})
+    
+    session['cart'] = cart
+    return redirect('/')
+
+
+@app.route('/cart')
+def view_cart():
+    from flask import session
+    cart = session.get('cart', [])
+    cart_items = []
+    total_cost = total_calories = total_protein = total_savings = 0
+
+    all_items = {item.name.lower(): item for item in Item.query.all()}
+    
+    for entry in cart:
+        meal_id = entry['meal_id']
+        qty = entry['qty']
+
+        # Find the corresponding recipe
+        recipe = next((r for r in RAW_recipes if r['id'] == meal_id), None)
+        if not recipe:
+            continue
+
+        available_items = []
+        cost = cal = prot = original = 0
+
+        for ing in recipe['ingredients']:
+            item = next((i for name, i in all_items.items() if ing.lower() in name), None)
+            if item:
+                available_items.append(item)
+                original += item.cost
+                cost += item.cost * (1 - (item.discount or 0) / 100)
+                cal += item.calories or 0
+                prot += item.protein or 0
+
+        total_cost += cost * qty
+        total_calories += cal * qty
+        total_protein += prot * qty
+        total_savings += (original - cost) * qty
+
+        cart_items.append({
+            'title': f"Recipe #{meal_id}",
+            'ingredients': available_items,
+            'cost': round(cost * qty, 2),
+            'calories': round(cal * qty),
+            'protein': round(prot * qty),
+            'qty': qty
+        })
+
+    return render_template('cart.html',
+        cart_items=cart_items,
+        total_cost=round(total_cost, 2),
+        total_calories=round(total_calories),
+        total_protein=round(total_protein),
+        total_savings=round(total_savings, 2)
+    )
+
+
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    session['cart'] = []
+    return redirect(url_for('home'))
 
 
 
